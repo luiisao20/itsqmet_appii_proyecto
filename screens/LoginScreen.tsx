@@ -88,7 +88,7 @@ const LoginScreen = ({ navigation }: Props) => {
                     value={password}
                   />
                   <ButtonComponent
-                    onPress={() => navigation.navigate("Inicio")}
+                    onPress={() => navigation.navigate("tabs")}
                     text="Ingresar"
                     icon={
                       <Ionicons
