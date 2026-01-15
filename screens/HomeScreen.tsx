@@ -7,8 +7,14 @@ import ButtonComponent from "../components/ButtonComponent";
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootBottomTabParams } from "../navigation/BottomNavigator";
 import Footer from "../components/Footer";
+import { RootStackParams } from "../navigation/StackNavigator";
+import { CompositeScreenProps } from "@react-navigation/native";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
-type Props = StackScreenProps<RootBottomTabParams, "home">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<RootBottomTabParams, "home">,
+  StackScreenProps<RootStackParams, "tabs">
+>;
 
 export default function HomeScreen({ navigation }: Props) {
   return (
@@ -29,9 +35,7 @@ export default function HomeScreen({ navigation }: Props) {
             </View>
             <View style={{ gap: 16 }}>
               <ButtonComponent
-                onPress={() => {
-                  console.log("Nuevo juego");
-                }}
+                onPress={() => navigation.navigate("game")}
                 icon={
                   <MaterialIcons name="play-arrow" size={24} color="#000" />
                 }
