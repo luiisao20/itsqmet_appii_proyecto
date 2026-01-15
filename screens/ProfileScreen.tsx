@@ -1,9 +1,13 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { RootBottomTabParams } from "../navigation/BottomNavigator";
+import { StackScreenProps } from "@react-navigation/stack";
 
-export default function ProfileScreen() {
+type Props = StackScreenProps<RootBottomTabParams, "profile">;
+
+export default function ProfileScreen({ navigation }: Props) {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
