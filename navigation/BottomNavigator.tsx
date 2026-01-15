@@ -3,12 +3,16 @@ import { MaterialIcons } from "@expo/vector-icons";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
-const Tab = createBottomTabNavigator();
+export type RootBottomTabParams = {
+  home: undefined;
+  profile: undefined;
+};
 
 function MyTabs() {
+  const Tab = createBottomTabNavigator<RootBottomTabParams>();
+
   return (
     <Tab.Navigator
-      initialRouteName="Inicio"
       screenOptions={{
         headerShown: false,
         tabBarStyle: { backgroundColor: "#1C3041" },
@@ -17,7 +21,7 @@ function MyTabs() {
       }}
     >
       <Tab.Screen
-        name="Inicio"
+        name="home"
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -30,7 +34,7 @@ function MyTabs() {
         }}
       />
       <Tab.Screen
-        name="Perfil"
+        name="profile"
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
