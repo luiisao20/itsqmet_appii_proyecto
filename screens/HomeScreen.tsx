@@ -50,9 +50,7 @@ export default function HomeScreen({ navigation }: Props) {
                 type="dark"
               />
               <ButtonComponent
-                onPress={() => {
-                  console.log("Tablero");
-                }}
+                onPress={() => navigation.navigate("leaderboard")}
                 icon={<Ionicons name="trophy" size={24} color="#fff" />}
                 text="Tablero"
                 type="dark"
