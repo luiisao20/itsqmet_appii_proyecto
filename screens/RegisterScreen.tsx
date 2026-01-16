@@ -1,4 +1,5 @@
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -22,6 +23,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
+import { registerAction } from "../core/auth/register.action";
 
 type Props = StackScreenProps<RootStackParams, "register">;
 
@@ -39,6 +41,36 @@ const RegisterScreen = ({ navigation }: Props) => {
     name: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async () => {
+    setLoading(true);
+    if (
+      registerInfo.email.trim() === "" ||
+      registerInfo.name.trim() === "" ||
+      registerInfo.password.trim() === ""
+    ) {
+      Alert.alert(
+        "¡Error!",
+        "Todos los campos son necesarios, asegúrate de llenar toda la información"
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (registerInfo.confirmPassword !== registerInfo.password) {
+      Alert.alert("¡Error", "Las contraseñas no son iguales");
+      return;
+    }
+
+    try {
+      await registerAction(registerInfo.email, registerInfo.password);
+      navigation.navigate("tabs");
+    } catch (error) {
+      Alert.alert("¡Error!", `Ha ocurrido un error!\n ${error}`);
+    }
+    setLoading(false);
+  };
 
   return (
     <SafeAreaProvider style={styles.container}>
@@ -134,10 +166,11 @@ const RegisterScreen = ({ navigation }: Props) => {
                         confirmPassword: text,
                       }))
                     }
-                    value={registerInfo.password}
+                    value={registerInfo.confirmPassword}
                   />
                   <ButtonComponent
-                    onPress={() => navigation.navigate("Inicio")}
+                    onPress={handleRegister}
+                    disabled={loading}
                     text="Ingresar"
                     icon={
                       <Ionicons

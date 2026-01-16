@@ -20,7 +20,7 @@ export type RootStackParams = {
 const StackNavigation = () => {
   const Stack = createStackNavigator<RootStackParams>();
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName="tabs" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="welcome" component={WelcomeScreen} />
       <Stack.Screen name="login" component={LoginScreen} />
       <Stack.Screen name="register" component={RegisterScreen} />

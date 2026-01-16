@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -16,6 +17,7 @@ import HeaderDots from "../components/HeaderDots";
 import InputComponent from "../components/InputComponent";
 import { Colors } from "../assets/colors";
 import ButtonComponent from "../components/ButtonComponent";
+import { loginAction } from "../core/auth/login.action";
 
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -28,6 +30,24 @@ type Props = StackScreenProps<RootStackParams, "login">;
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    if (email.trim() === "" || password.trim() === "") {
+      Alert.alert("Error", "Ingresa información válida");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await loginAction(email, password);
+      navigation.replace("tabs");
+    } catch (error) {
+      Alert.alert("Error", "Credenciales invalidas");
+    }
+    setLoading(false);
+  };
 
   return (
     <SafeAreaProvider style={styles.container}>
@@ -88,7 +108,8 @@ const LoginScreen = ({ navigation }: Props) => {
                     value={password}
                   />
                   <ButtonComponent
-                    onPress={() => navigation.navigate("tabs")}
+                    disabled={loading}
+                    onPress={handleLogin}
                     text="Ingresar"
                     icon={
                       <Ionicons

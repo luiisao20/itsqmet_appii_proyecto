@@ -42,9 +42,7 @@ export default function HomeScreen({ navigation }: Props) {
                 text="Nuevo juego"
               />
               <ButtonComponent
-                onPress={() => {
-                  console.log("Como jugar");
-                }}
+                onPress={() => navigation.navigate("howToPlay")}
                 icon={<MaterialIcons name="lightbulb" size={24} color="#fff" />}
                 text="Como jugar"
                 type="dark"
