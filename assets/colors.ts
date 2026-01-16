@@ -18,4 +18,7 @@ export const Colors = {
   dotYellowHigh: "#894B00",
   dotGreenLow: "#00C950",
   dotGreenHigh: "#016630",
+  pink: "#F912E0",
+  greenLight: "#3DF912",
+  yellowLight: "#F9C312",
 };
