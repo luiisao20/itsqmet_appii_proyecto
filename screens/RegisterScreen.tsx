@@ -1,4 +1,6 @@
+import { useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -16,29 +18,66 @@ import HeaderDots from "../components/HeaderDots";
 import InputComponent from "../components/InputComponent";
 import ButtonComponent from "../components/ButtonComponent";
 import Footer from "../components/Footer";
+import { registerAction } from "../core/auth/register.action";
 
-import Feather from "@expo/vector-icons/Feather";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
+import {
+  Entypo,
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 
 type Props = StackScreenProps<RootStackParams, "register">;
 
-interface Register {
+export interface RegisterNewUser {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
+  username: string;
 }
 
 const RegisterScreen = ({ navigation }: Props) => {
-  const [registerInfo, setRegisterInfo] = useState<Register>({
+  const [registerInfo, setRegisterInfo] = useState<RegisterNewUser>({
     confirmPassword: "",
     email: "",
     name: "",
     password: "",
+    username: "",
   });
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async () => {
+    setLoading(true);
+    if (
+      registerInfo.email.trim() === "" ||
+      registerInfo.name.trim() === "" ||
+      registerInfo.password.trim() === ""
+    ) {
+      Alert.alert(
+        "¡Error!",
+        "Todos los campos son necesarios, asegúrate de llenar toda la información"
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (registerInfo.confirmPassword !== registerInfo.password) {
+      Alert.alert("¡Error", "Las contraseñas no son iguales");
+      return;
+    }
+
+    try {
+      const user = await registerAction(registerInfo);
+      console.log(user);
+
+      navigation.navigate("tabs");
+    } catch (error) {
+      Alert.alert("¡Error!", `Ha ocurrido un error!\n ${error}`);
+    }
+    setLoading(false);
+  };
 
   return (
     <SafeAreaProvider style={styles.container}>
@@ -92,6 +131,22 @@ const RegisterScreen = ({ navigation }: Props) => {
                       <Entypo name="email" size={20} color={Colors.input} />
                     }
                     autoCapitalize="none"
+                    placeholder="Elige un nombre de usuario"
+                    inputMode="email"
+                    onChangeText={(text) =>
+                      setRegisterInfo((prev) => ({ ...prev, username: text }))
+                    }
+                    value={registerInfo.username}
+                  />
+                  <InputComponent
+                    icon={
+                      <MaterialCommunityIcons
+                        name="email-open-outline"
+                        size={24}
+                        color="black"
+                      />
+                    }
+                    autoCapitalize="none"
                     placeholder="Correo electrónico"
                     inputMode="email"
                     onChangeText={(text) =>
@@ -134,10 +189,11 @@ const RegisterScreen = ({ navigation }: Props) => {
                         confirmPassword: text,
                       }))
                     }
-                    value={registerInfo.password}
+                    value={registerInfo.confirmPassword}
                   />
                   <ButtonComponent
-                    onPress={() => navigation.navigate("Inicio")}
+                    onPress={handleRegister}
+                    disabled={loading}
                     text="Ingresar"
                     icon={
                       <Ionicons

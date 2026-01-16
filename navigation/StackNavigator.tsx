@@ -6,6 +6,9 @@ import MyTabs from "./BottomNavigator";
 import HowToPlayScreen from "../screens/HowToPlayScreen";
 import LeaderboardScreen from "../screens/LeaderboardScreen";
 import GameScreen from "../screens/GameScreen";
+import PasswordScreen from "../screens/PasswordScreen";
+import InfoScreen from "../screens/InfoScreen";
+import HistoryScreen from "../screens/HistoryScreen";
 
 export type RootStackParams = {
   welcome: undefined;
@@ -15,12 +18,18 @@ export type RootStackParams = {
   howToPlay: undefined;
   leaderboard: undefined;
   game: undefined;
+  password: undefined;
+  info: undefined;
+  history: undefined;
 };
 
 const StackNavigation = () => {
   const Stack = createStackNavigator<RootStackParams>();
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName="tabs"
+      screenOptions={{ headerShown: false }}
+    >
       <Stack.Screen name="welcome" component={WelcomeScreen} />
       <Stack.Screen name="login" component={LoginScreen} />
       <Stack.Screen name="register" component={RegisterScreen} />
@@ -28,6 +37,9 @@ const StackNavigation = () => {
       <Stack.Screen name="howToPlay" component={HowToPlayScreen} />
       <Stack.Screen name="leaderboard" component={LeaderboardScreen} />
       <Stack.Screen name="game" component={GameScreen} />
+      <Stack.Screen name="password" component={PasswordScreen} />
+      <Stack.Screen name="info" component={InfoScreen} />
+      <Stack.Screen name="history" component={HistoryScreen} />
     </Stack.Navigator>
   );
 };

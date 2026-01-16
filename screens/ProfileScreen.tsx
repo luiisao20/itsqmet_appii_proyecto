@@ -1,49 +1,71 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { RootBottomTabParams } from "../navigation/BottomNavigator";
 import { StackScreenProps } from "@react-navigation/stack";
+import { CompositeScreenProps } from "@react-navigation/native";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { RootStackParams } from "../navigation/StackNavigator";
+import ButtonComponent from "../components/ButtonComponent";
+import Feather from "@expo/vector-icons/Feather";
 
-type Props = StackScreenProps<RootBottomTabParams, "profile">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<RootBottomTabParams, "home">,
+  StackScreenProps<RootStackParams, "tabs">
+>;
 
 export default function ProfileScreen({ navigation }: Props) {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>Perfil</Text>
-        <Image
-          source={{
-            uri: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-          }}
-          style={styles.profileImage}
-        />
-        <View style={{ borderWidth: 0.5, borderColor: "#ffffff1c" }} />
-        <View style={{ marginVertical: 20, gap: 18 }}>
-          <Text style={styles.profileInfoTitle}>Información de perfil</Text>
-          <View style={{ flexDirection: "row", gap: 12 }}>
-            <View style={{ width: 140 }}>
-              <Text style={styles.profileInfoSubtitle}>Nombre completo</Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={{ paddingHorizontal: 40 }}>
+            <Text style={styles.title}>Perfil</Text>
+            <Image
+              source={{
+                uri: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+              }}
+              style={styles.profileImage}
+            />
+            <View style={{ borderWidth: 0.5, borderColor: "#ffffff1c" }} />
+            <View style={{ marginVertical: 20, gap: 18 }}>
+              <Text style={styles.profileInfoTitle}>Información de perfil</Text>
+              <View style={{ flexDirection: "row", gap: 12 }}>
+                <View style={{ width: 140 }}>
+                  <Text style={styles.profileInfoSubtitle}>
+                    Nombre completo
+                  </Text>
+                </View>
+                <Text style={styles.profileInfo}>John Doe</Text>
+              </View>
+              <View style={{ flexDirection: "row", gap: 12 }}></View>
+              <View style={{ width: 140 }}>
+                <Text style={styles.profileInfoSubtitle}>E-mail</Text>
+              </View>
+              <Text style={styles.profileInfo}>correo@correo.com</Text>
             </View>
-            <Text style={styles.profileInfo}>John Doe</Text>
+            <View style={{ borderWidth: 0.5, borderColor: "#ffffff1c" }} />
           </View>
-          <View style={{ flexDirection: "row", gap: 12 }}>
-            <View style={{ width: 140 }}>
-              <Text style={styles.profileInfoSubtitle}>E-mail</Text>
-            </View>
-            <Text style={styles.profileInfo}>correo@correo.com</Text>
+          <View style={{ gap: 20, marginTop: 20 }}>
+            <ButtonComponent
+              onPress={() => navigation.navigate("history")}
+              icon={<MaterialIcons name="history" size={20} color="white" />}
+              type="dark"
+              text="Historial"
+            />
+            <ButtonComponent
+              onPress={() => navigation.navigate("password")}
+              icon={<MaterialIcons name="password" size={20} color="black" />}
+              text="Actualizar contraseña"
+            />
+            <ButtonComponent
+              onPress={() => navigation.navigate("info")}
+              icon={<Feather name="edit" size={24} color="black" />}
+              text="Editar información"
+            />
           </View>
-        </View>
-        <View style={{ borderWidth: 0.5, borderColor: "#ffffff1c" }} />
-        <TouchableOpacity style={styles.button}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <MaterialIcons name="history" size={24} color="#fff" />
-            <Text style={[styles.buttonText, { color: "#fff" }]}>
-              Ver historial
-            </Text>
-          </View>
-          <MaterialIcons name="chevron-right" size={24} color="#345879" />
-        </TouchableOpacity>
+        </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -53,7 +75,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C3041",
-    paddingHorizontal: 24,
   },
   title: {
     marginTop: 10,

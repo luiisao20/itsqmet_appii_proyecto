@@ -9,7 +9,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Colors } from "../assets/colors";
 
 interface Props extends PressableProps {
-  icon: React.JSX.Element;
+  icon?: React.JSX.Element;
   notArrow?: boolean;
   text: string;
   type?: "light" | "dark";
