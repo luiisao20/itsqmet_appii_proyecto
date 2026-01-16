@@ -8,4 +8,7 @@ export const Colors = {
   buttonDark: "#ffffff0a",
   darkGreen: "#345879",
   input: "#48EAE2",
+  pink: "#F912E0",
+  greenLight: "#3DF912",
+  yellowLight: "#F9C312",
 };
