@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -17,29 +18,33 @@ import HeaderDots from "../components/HeaderDots";
 import InputComponent from "../components/InputComponent";
 import ButtonComponent from "../components/ButtonComponent";
 import Footer from "../components/Footer";
-
-import Feather from "@expo/vector-icons/Feather";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
 import { registerAction } from "../core/auth/register.action";
+
+import {
+  Entypo,
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 
 type Props = StackScreenProps<RootStackParams, "register">;
 
-interface Register {
+export interface RegisterNewUser {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
+  username: string;
 }
 
 const RegisterScreen = ({ navigation }: Props) => {
-  const [registerInfo, setRegisterInfo] = useState<Register>({
+  const [registerInfo, setRegisterInfo] = useState<RegisterNewUser>({
     confirmPassword: "",
     email: "",
     name: "",
     password: "",
+    username: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -64,7 +69,9 @@ const RegisterScreen = ({ navigation }: Props) => {
     }
 
     try {
-      await registerAction(registerInfo.email, registerInfo.password);
+      const user = await registerAction(registerInfo);
+      console.log(user);
+
       navigation.navigate("tabs");
     } catch (error) {
       Alert.alert("¡Error!", `Ha ocurrido un error!\n ${error}`);
@@ -122,6 +129,22 @@ const RegisterScreen = ({ navigation }: Props) => {
                   <InputComponent
                     icon={
                       <Entypo name="email" size={20} color={Colors.input} />
+                    }
+                    autoCapitalize="none"
+                    placeholder="Elige un nombre de usuario"
+                    inputMode="email"
+                    onChangeText={(text) =>
+                      setRegisterInfo((prev) => ({ ...prev, username: text }))
+                    }
+                    value={registerInfo.username}
+                  />
+                  <InputComponent
+                    icon={
+                      <MaterialCommunityIcons
+                        name="email-open-outline"
+                        size={24}
+                        color="black"
+                      />
                     }
                     autoCapitalize="none"
                     placeholder="Correo electrónico"
