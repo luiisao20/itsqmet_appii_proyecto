@@ -11,7 +11,7 @@ import ButtonComponent from "../components/ButtonComponent";
 import Feather from "@expo/vector-icons/Feather";
 
 type Props = CompositeScreenProps<
-  BottomTabScreenProps<RootBottomTabParams, "home">,
+  BottomTabScreenProps<RootBottomTabParams, "profile">,
   StackScreenProps<RootStackParams, "tabs">
 >;
 

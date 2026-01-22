@@ -1,7 +1,5 @@
 import {
   FlatList,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -17,7 +15,7 @@ import TopCircles from "../components/TopCircles";
 import LeaderboardItem from "../components/LeaderBoardItem";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 
-type Props = StackScreenProps<RootStackParams, "game">;
+type Props = StackScreenProps<RootStackParams, "leaderboard">;
 
 export default function LeaderboardScreen({ navigation }: Props) {
   return (
