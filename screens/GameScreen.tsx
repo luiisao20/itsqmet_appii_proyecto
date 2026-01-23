@@ -1,12 +1,12 @@
 import {
-  FlatList,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../assets/colors";
 import Dot from "../components/Dot";
@@ -16,7 +16,113 @@ import { RootStackParams } from "../navigation/StackNavigator";
 
 type Props = StackScreenProps<RootStackParams, "game">;
 
+const colors = [
+  Colors.red,
+  Colors.blue,
+  Colors.yellow,
+  Colors.green,
+  Colors.pink,
+  Colors.yellowLight,
+];
+
+interface Attempt {
+  colors: string[];
+  feedback: {
+    correct: number;
+    wrongPosition: number;
+  };
+}
+
 export default function GameScreen({ navigation }: Props) {
+  const [secretCode, setSecretCode] = useState<string[]>([]);
+  const [currentAttempt, setCurrentAttempt] = useState<string[]>([]);
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [gameOver, setGameOver] = useState(false);
+  const [won, setWon] = useState(false);
+
+  useEffect(() => {
+    generateSecretCode();
+  }, []);
+
+  //! Código secreto aleatorio
+  const generateSecretCode = () => {
+    const code: string[] = [];
+    for (let i = 0; i < 4; i++) {
+      const randomIndex = Math.floor(Math.random() * colors.length);
+      code.push(colors[randomIndex]);
+    }
+    setSecretCode(code);
+    console.log("Código secreto:", code);
+  };
+
+  const selectColor = (color: string) => {
+    if (gameOver) return;
+
+    if (currentAttempt.length < 4) {
+      setCurrentAttempt([...currentAttempt, color]);
+    }
+  };
+
+  //! Validar intento
+  const checkAttempt = () => {
+    if (currentAttempt.length !== 4) {
+      Alert.alert("Atención", "Debes seleccionar 4 colores");
+      return;
+    }
+
+    const feedback = calculateFeedback(currentAttempt, secretCode);
+
+    const newAttempt: Attempt = {
+      colors: [...currentAttempt],
+      feedback,
+    };
+
+    setAttempts([newAttempt, ...attempts]);
+
+    //! Ganar
+    if (feedback.correct === 4) {
+      setWon(true);
+      setGameOver(true);
+      Alert.alert("¡Felicidades!", "¡Has descifrado el código!");
+    } else if (attempts.length >= 9) {
+      //TODO: OJO MAXIMO 10 INTENTOS, CAMBIAR LUEGO PARA OTRAS DIFICULTADES
+      setGameOver(true);
+      Alert.alert("Juego terminado", "Se acabaron los intentos");
+    }
+
+    setCurrentAttempt([]);
+  };
+
+  const calculateFeedback = (attempt: string[], secret: string[]) => {
+    let correct = 0;
+    let wrongPosition = 0;
+
+    const secretCopy = [...secret];
+    const attemptCopy = [...attempt];
+
+    //! Correctos en posición correcta
+    for (let i = 0; i < 4; i++) {
+      if (attemptCopy[i] === secretCopy[i]) {
+        correct++;
+        secretCopy[i] = "MATCHED";
+        attemptCopy[i] = "CHECKED";
+      }
+    }
+
+    //! Correctos en posición incorrecta
+    for (let i = 0; i < 4; i++) {
+      if (attemptCopy[i] !== "CHECKED") {
+        const index = secretCopy.indexOf(attemptCopy[i]);
+        if (index !== -1) {
+          wrongPosition++;
+          secretCopy[index] = "MATCHED";
+        }
+      }
+    }
+
+    return { correct, wrongPosition };
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -34,7 +140,13 @@ export default function GameScreen({ navigation }: Props) {
               color={Colors.buttonLight}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>MASTERMIND</Text>
+
+          <View
+            style={{ flexDirection: "row", justifyContent: "center", gap: 12 }}
+          >
+            <Text style={styles.title}>MASTERMIND</Text>
+          </View>
+
           <View
             style={[
               styles.inactiveContainer,
@@ -42,102 +154,134 @@ export default function GameScreen({ navigation }: Props) {
             ]}
           >
             <Text style={styles.subtitle}>Descifra el código</Text>
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              data={dots.slice(0, 4)}
-              renderItem={() => (
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              {[0, 1, 2, 3].map((index) => (
                 <Dot
-                  size={50}
-                  color={"#00000000"}
+                  key={index}
+                  size={36}
+                  color={gameOver ? secretCode[index] : "transparent"}
                   select={true}
                   shadow={false}
                   borderColor="#175e5a"
                   borderStyle="dotted"
                 />
-              )}
-              contentContainerStyle={{ gap: 12 }}
-            />
-          </View>
-          <View style={styles.inactiveContainer}>
-            <Text
-              style={{
-                color: Colors.buttonLight,
-                fontWeight: "600",
-                fontSize: 16,
-              }}
-            >
-              # 1
-            </Text>
-            <View>
-              <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                data={dots.slice(0, 4)}
-                renderItem={({ item, index }) => (
-                  <Dot size={50} color={item.color} shadow={false} />
-                )}
-                contentContainerStyle={{ gap: 12 }}
-              />
-            </View>
-            <View>
-              <View style={{ flexDirection: "row", gap: 4, marginBottom: 4 }}>
-                <Dot size={10} color={"#fff"} select={false} shadow={false} />
-                <Dot
-                  size={10}
-                  color={Colors.red}
-                  select={false}
-                  shadow={false}
-                />
-              </View>
-              <View style={{ flexDirection: "row", gap: 4, marginBottom: 4 }}>
-                <Dot size={10} color={"#fff"} select={false} shadow={false} />
-                <Dot
-                  size={10}
-                  color={Colors.red}
-                  select={false}
-                  shadow={false}
-                />
-              </View>
+              ))}
             </View>
           </View>
+
+          {attempts.map((attempt, attemptIndex) => (
+            <View key={attemptIndex} style={styles.inactiveContainer}>
+              <Text
+                style={{
+                  color: Colors.buttonLight,
+                  fontWeight: "600",
+                  fontSize: 16,
+                }}
+              >
+                #{attempts.length - attemptIndex}
+              </Text>
+              <View style={{ flexDirection: "row", gap: 12 }}>
+                {attempt.colors.map((color, index) => (
+                  <Dot
+                    key={index}
+                    size={36}
+                    color={color}
+                    select={false}
+                    shadow={true}
+                  />
+                ))}
+              </View>
+
+              <View>
+                <View style={{ flexDirection: "row", gap: 4, marginBottom: 4 }}>
+                  <Dot
+                    size={10}
+                    color={attempt.feedback.correct >= 1 ? "#fff" : "#868686"}
+                    select={false}
+                    shadow={false}
+                  />
+                  <Dot
+                    size={10}
+                    color={
+                      attempt.feedback.correct >= 2
+                        ? "#fff"
+                        : attempt.feedback.wrongPosition >= 1
+                          ? Colors.red
+                          : "#868686"
+                    }
+                    select={false}
+                    shadow={false}
+                  />
+                </View>
+                <View style={{ flexDirection: "row", gap: 4 }}>
+                  <Dot
+                    size={10}
+                    color={
+                      attempt.feedback.correct >= 3
+                        ? "#fff"
+                        : attempt.feedback.wrongPosition >= 1 &&
+                            attempt.feedback.correct < 2
+                          ? Colors.red
+                          : attempt.feedback.wrongPosition >= 2 &&
+                              attempt.feedback.correct === 2
+                            ? Colors.red
+                            : "#868686"
+                    }
+                    select={false}
+                    shadow={false}
+                  />
+                  <Dot
+                    size={10}
+                    color={
+                      attempt.feedback.correct >= 4
+                        ? "#fff"
+                        : attempt.feedback.wrongPosition >= 2 &&
+                            attempt.feedback.correct < 2
+                          ? Colors.red
+                          : attempt.feedback.wrongPosition >= 3 &&
+                              attempt.feedback.correct === 1
+                            ? Colors.red
+                            : attempt.feedback.wrongPosition >= 1 &&
+                                attempt.feedback.correct === 2
+                              ? Colors.red
+                              : attempt.feedback.wrongPosition +
+                                    attempt.feedback.correct ===
+                                  4
+                                ? Colors.red
+                                : "#868686"
+                    }
+                    select={false}
+                    shadow={false}
+                  />
+                </View>
+              </View>
+            </View>
+          ))}
         </ScrollView>
+
         <View style={styles.activeContainer}>
-          <Text
-            style={{
-              color: Colors.buttonLight,
-              fontWeight: "600",
-              fontSize: 16,
-            }}
-          >
-            Activo
-          </Text>
-          <View>
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              data={dots.slice(0, 4)}
-              renderItem={({ item, index }) => (
-                <Dot
-                  size={50}
-                  color={index === 0 || index === 1 ? item.color : "#868686"}
-                  shadow={false}
-                />
-              )}
-              contentContainerStyle={{ gap: 12 }}
-            />
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            {[0, 1, 2, 3].map((index) => (
+              <Dot
+                key={index}
+                size={36}
+                color={currentAttempt[index] || "#868686"}
+                select={currentAttempt.length === index}
+                shadow={true}
+              />
+            ))}
           </View>
-          <View>
-            <View style={{ flexDirection: "row", gap: 4, marginBottom: 4 }}>
-              <Dot size={10} color={"#fff"} select={false} shadow={false} />
-              <Dot size={10} color={Colors.red} select={false} shadow={false} />
-            </View>
-            <View style={{ flexDirection: "row", gap: 4, marginBottom: 4 }}>
-              <Dot size={10} color={"#fff"} select={false} shadow={false} />
-              <Dot size={10} color={Colors.red} select={false} shadow={false} />
-            </View>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <TouchableOpacity
+              onPress={checkAttempt}
+              style={[styles.actionButton, { backgroundColor: Colors.green }]}
+              disabled={gameOver}
+            >
+              <Feather name="check" size={20} color="#fff" />
+            </TouchableOpacity>
           </View>
         </View>
+
         <View style={{ backgroundColor: "#ffffff0a", paddingVertical: 20 }}>
           <Text
             style={{
@@ -150,25 +294,25 @@ export default function GameScreen({ navigation }: Props) {
           >
             Elige el orden
           </Text>
-          <FlatList
+          <View
             style={{
-              alignSelf: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: 12,
               paddingHorizontal: 20,
               paddingVertical: 20,
             }}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={dots}
-            renderItem={({ item, index }) => (
-              <Dot
-                size={50}
-                color={item.color}
-                select={index === 1}
-                shadow={true}
-              />
-            )}
-            contentContainerStyle={{ gap: 12 }}
-          />
+          >
+            {colors.map((color, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => selectColor(color)}
+                disabled={gameOver}
+              >
+                <Dot size={36} color={color} select={false} shadow={true} />
+              </TouchableOpacity>
+            ))}
+          </View>
           <View
             style={{ flexDirection: "row", justifyContent: "space-around" }}
           >
@@ -233,7 +377,7 @@ const styles = StyleSheet.create({
   },
   activeContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
     alignItems: "center",
     gap: 12,
     margin: 20,
@@ -255,13 +399,11 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     marginTop: 6,
   },
+  actionButton: {
+    backgroundColor: Colors.red,
+    padding: 8,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
-
-const dots = [
-  { color: Colors.red },
-  { color: Colors.blue },
-  { color: Colors.yellow },
-  { color: Colors.green },
-  { color: Colors.pink },
-  { color: Colors.yellowLight },
-];
