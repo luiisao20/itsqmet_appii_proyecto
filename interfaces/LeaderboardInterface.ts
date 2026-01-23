@@ -3,3 +3,8 @@ export interface LeaderboardInterface {
   score: number;
   rank: number;
 }
+
+export interface UserApp {
+  username: string;
+  fullName: string;
+}

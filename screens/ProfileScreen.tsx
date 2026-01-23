@@ -1,6 +1,6 @@
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { RootBottomTabParams } from "../navigation/BottomNavigator";
 import { StackScreenProps } from "@react-navigation/stack";
@@ -9,6 +9,9 @@ import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootStackParams } from "../navigation/StackNavigator";
 import ButtonComponent from "../components/ButtonComponent";
 import Feather from "@expo/vector-icons/Feather";
+import { useAuthStore } from "../store/useAuthStore";
+import { UserApp } from "../interfaces/LeaderboardInterface";
+import { getUserData } from "../core/database/get-user-data.action";
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParams, "profile">,
@@ -16,6 +19,20 @@ type Props = CompositeScreenProps<
 >;
 
 export default function ProfileScreen({ navigation }: Props) {
+  const [userData, setUserData] = useState<UserApp>();
+
+  const { user } = useAuthStore();
+
+  const getUserInfo = async () => {
+    const resp = await getUserData(user?.id!);
+
+    setUserData(resp);
+  };
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -37,13 +54,13 @@ export default function ProfileScreen({ navigation }: Props) {
                     Nombre completo
                   </Text>
                 </View>
-                <Text style={styles.profileInfo}>John Doe</Text>
+                <Text style={styles.profileInfo}>{userData?.fullName}</Text>
               </View>
               <View style={{ flexDirection: "row", gap: 12 }}></View>
               <View style={{ width: 140 }}>
                 <Text style={styles.profileInfoSubtitle}>E-mail</Text>
               </View>
-              <Text style={styles.profileInfo}>correo@correo.com</Text>
+              <Text style={styles.profileInfo}>{user?.email}</Text>
             </View>
             <View style={{ borderWidth: 0.5, borderColor: "#ffffff1c" }} />
           </View>

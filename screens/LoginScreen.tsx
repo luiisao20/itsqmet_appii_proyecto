@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -17,36 +17,51 @@ import HeaderDots from "../components/HeaderDots";
 import InputComponent from "../components/InputComponent";
 import { Colors } from "../assets/colors";
 import ButtonComponent from "../components/ButtonComponent";
-import { loginAction } from "../core/auth/login.action";
 
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from "@expo/vector-icons/Feather";
 import Footer from "../components/Footer";
+import * as LocalAuthentication from "expo-local-authentication";
+import { useAuthStore } from "../store/useAuthStore";
 
 type Props = StackScreenProps<RootStackParams, "login">;
 
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const { loading, login, checkSession } = useAuthStore();
+
+  const check = async () => {
+    const resp = await checkSession();
+
+    if (resp) getBiometrics();
+  };
+
+  const getBiometrics = async () => {
+    const authResult = await LocalAuthentication.authenticateAsync({});
+
+    if (authResult.success) {
+      navigation.navigate("tabs");
+    } else {
+      console.log("not token available");
+    }
+  };
+
+  useEffect(() => {
+    check();
+  }, []);
 
   const handleLogin = async () => {
-    setLoading(true);
     if (email.trim() === "" || password.trim() === "") {
       Alert.alert("Error", "Ingresa información válida");
-      setLoading(false);
       return;
     }
 
-    try {
-      await loginAction(email, password);
-      navigation.replace("tabs");
-    } catch (error) {
-      Alert.alert("Error", "Credenciales invalidas");
-    }
-    setLoading(false);
+    const resp = await login(email, password);
+    if (resp) navigation.navigate("tabs");
   };
 
   return (
