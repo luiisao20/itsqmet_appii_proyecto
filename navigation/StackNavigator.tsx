@@ -27,7 +27,7 @@ const StackNavigation = () => {
   const Stack = createStackNavigator<RootStackParams>();
   return (
     <Stack.Navigator
-      initialRouteName="tabs"
+      // initialRouteName="tabs"
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="welcome" component={WelcomeScreen} />

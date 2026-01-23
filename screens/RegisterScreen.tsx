@@ -18,7 +18,6 @@ import HeaderDots from "../components/HeaderDots";
 import InputComponent from "../components/InputComponent";
 import ButtonComponent from "../components/ButtonComponent";
 import Footer from "../components/Footer";
-import { registerAction } from "../core/auth/register.action";
 
 import {
   Entypo,
@@ -27,6 +26,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { useAuthStore } from "../store/useAuthStore";
 
 type Props = StackScreenProps<RootStackParams, "register">;
 
@@ -46,10 +46,9 @@ const RegisterScreen = ({ navigation }: Props) => {
     password: "",
     username: "",
   });
-  const [loading, setLoading] = useState(false);
+  const { register, loading } = useAuthStore();
 
   const handleRegister = async () => {
-    setLoading(true);
     if (
       registerInfo.email.trim() === "" ||
       registerInfo.name.trim() === "" ||
@@ -57,9 +56,8 @@ const RegisterScreen = ({ navigation }: Props) => {
     ) {
       Alert.alert(
         "¡Error!",
-        "Todos los campos son necesarios, asegúrate de llenar toda la información"
+        "Todos los campos son necesarios, asegúrate de llenar toda la información",
       );
-      setLoading(false);
       return;
     }
 
@@ -68,15 +66,8 @@ const RegisterScreen = ({ navigation }: Props) => {
       return;
     }
 
-    try {
-      const user = await registerAction(registerInfo);
-      console.log(user);
-
-      navigation.navigate("tabs");
-    } catch (error) {
-      Alert.alert("¡Error!", `Ha ocurrido un error!\n ${error}`);
-    }
-    setLoading(false);
+    const resp = await register(registerInfo);
+    if (resp) navigation.navigate("tabs");
   };
 
   return (
