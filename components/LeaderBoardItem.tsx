@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
+import { LeaderboardInterface } from "../interfaces/interfaces";
 import { Colors } from "../assets/colors";
 
 interface Props {

@@ -13,7 +13,7 @@ import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParams } from "../navigation/StackNavigator";
 import TopCircles from "../components/TopCircles";
 import LeaderboardItem from "../components/LeaderBoardItem";
-import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
+import { LeaderboardInterface } from "../interfaces/interfaces";
 
 type Props = StackScreenProps<RootStackParams, "leaderboard">;
 

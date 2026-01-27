@@ -1,4 +1,4 @@
-import { UserApp } from "../../interfaces/LeaderboardInterface";
+import { UserApp } from "../../interfaces/interfaces";
 import { supabase } from "../../supabase/config";
 
 export const getUserData = async (userId: string): Promise<UserApp> => {

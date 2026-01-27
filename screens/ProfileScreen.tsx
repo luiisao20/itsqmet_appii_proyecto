@@ -10,7 +10,7 @@ import { RootStackParams } from "../navigation/StackNavigator";
 import ButtonComponent from "../components/ButtonComponent";
 import Feather from "@expo/vector-icons/Feather";
 import { useAuthStore } from "../store/useAuthStore";
-import { UserApp } from "../interfaces/LeaderboardInterface";
+import { UserApp } from "../interfaces/interfaces";
 import { getUserData } from "../core/database/get-user-data.action";
 
 type Props = CompositeScreenProps<

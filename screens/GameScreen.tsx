@@ -13,6 +13,7 @@ import Dot from "../components/Dot";
 import { Feather } from "@expo/vector-icons";
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParams } from "../navigation/StackNavigator";
+import { useAuthStore } from "../store/useAuthStore";
 
 type Props = StackScreenProps<RootStackParams, "game">;
 
@@ -39,6 +40,8 @@ export default function GameScreen({ navigation }: Props) {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
+
+  const { user } = useAuthStore();
 
   useEffect(() => {
     generateSecretCode();
