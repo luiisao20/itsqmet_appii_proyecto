@@ -22,3 +22,11 @@ export interface GameRank {
   username: string;
   totalPoints: number;
 }
+
+export interface Attempt {
+  colors: string[];
+  feedback: {
+    correct: number;
+    wrongPosition: number;
+  };
+}
