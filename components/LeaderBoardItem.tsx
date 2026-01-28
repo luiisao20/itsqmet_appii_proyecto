@@ -1,15 +1,21 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import { LeaderboardInterface } from "../interfaces/interfaces";
+import { GameRank } from "../interfaces/interfaces";
 import { Colors } from "../assets/colors";
 
 interface Props {
-  item: LeaderboardInterface;
+  item: GameRank;
   backgroundColor?: string;
   shadowColor?: boolean;
+  index: number;
 }
 
-const LeaderboardItem = ({ item, backgroundColor, shadowColor }: Props) => {
+const LeaderboardItem = ({
+  item,
+  backgroundColor,
+  shadowColor,
+  index,
+}: Props) => {
   return (
     <View
       style={[
@@ -23,10 +29,10 @@ const LeaderboardItem = ({ item, backgroundColor, shadowColor }: Props) => {
       ]}
     >
       <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
-        <Text style={styles.textItem}># {item.rank}</Text>
-        <Text style={styles.textItem}>{item.user}</Text>
+        <Text style={styles.textItem}># {index + 1}</Text>
+        <Text style={styles.textItem}>{item.username}</Text>
       </View>
-      <Text style={styles.textItem}>{item.score}pts</Text>
+      <Text style={styles.textItem}>{item.totalPoints}pts</Text>
     </View>
   );
 };

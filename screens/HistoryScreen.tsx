@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../assets/colors";
 import { FlatList } from "react-native-gesture-handler";
@@ -7,8 +7,11 @@ import HeaderDots from "../components/HeaderDots";
 import GoBackButton from "../components/GoBackButton";
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParams } from "../navigation/StackNavigator";
-import { Feather } from "@expo/vector-icons";
 import Footer from "../components/Footer";
+import { GameHistory } from "../interfaces/interfaces";
+import { useEffect, useState } from "react";
+import { useAuthStore } from "../store/useAuthStore";
+import { getUserHistory } from "../core/database/get-user-history.action";
 
 export interface Game {
   date: string;
@@ -20,25 +23,35 @@ export interface Game {
 
 type Props = StackScreenProps<RootStackParams, "history">;
 
-const games: Game[] = [
-  { date: "12 - ene - 2026", win: true, tries: 3, time: 120, lvl: "easy" },
-  { date: "12 - feb - 2026", win: false, tries: 5, time: 240, lvl: "medium" },
-  { date: "5 - ene - 2026", win: true, tries: 2, time: 95, lvl: "hard" },
-  { date: "8 - ene - 2026", win: false, tries: 6, time: 310, lvl: "expert" },
-  { date: "20 - mar - 2026", win: true, tries: 4, time: 180, lvl: "medium" },
-  { date: "12 - feb - 2026", win: false, tries: 7, time: 400, lvl: "hard" },
-  { date: "15 - ene - 2026", win: true, tries: 1, time: 60, lvl: "easy" },
-  { date: "1 - ene - 2026", win: true, tries: 3, time: 150, lvl: "expert" },
-  { date: "20 - ene - 2026", win: false, tries: 8, time: 500, lvl: "medium" },
-  { date: "31 - ene - 2026", win: true, tries: 2, time: 110, lvl: "hard" },
-];
-
 const HistoryScreen = ({ navigation }: Props) => {
+  const [history, setHistory] = useState<GameHistory[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    getRank();
+  }, []);
+
+  const getRank = async () => {
+    try {
+      setIsLoading(true);
+      // const dataList = await getUserHistory(user?.id!);
+      // setRank(dataList);
+
+      setHistory(dataHistory);
+    } catch (error) {
+      console.log(`Error: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SafeAreaProvider style={{ backgroundColor: Colors.background }}>
       <SafeAreaView style={{ flex: 1 }}>
         <FlatList
-          data={games}
+          data={history}
           renderItem={({ item }) => <HistoryComponent game={item} />}
           ListHeaderComponent={() => (
             <View>
@@ -48,6 +61,9 @@ const HistoryScreen = ({ navigation }: Props) => {
             </View>
           )}
           ListFooterComponent={() => <Footer />}
+          refreshControl={
+            <RefreshControl onRefresh={getRank} refreshing={isLoading} />
+          }
         />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -67,3 +83,16 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
 });
+
+const dataHistory: GameHistory[] = [
+  { date: "2024-06-01", points: 50, time: 120, tries: 3, won: true },
+  { date: "2024-06-02", points: 30, time: 200, tries: 5, won: false },
+  { date: "2024-06-03", points: 70, time: 90, tries: 2, won: true },
+  { date: "2024-06-04", points: 20, time: 250, tries: 6, won: false },
+  { date: "2024-06-05", points: 60, time: 110, tries: 3, won: true },
+  { date: "2024-06-06", points: 40, time: 180, tries: 4, won: false },
+  { date: "2024-06-07", points: 80, time: 80, tries: 1, won: true },
+  { date: "2024-06-08", points: 25, time: 220, tries: 5, won: false },
+  { date: "2024-06-09", points: 55, time: 130, tries: 3, won: true },
+  { date: "2024-06-10", points: 35, time: 190, tries: 4, won: false },
+];
