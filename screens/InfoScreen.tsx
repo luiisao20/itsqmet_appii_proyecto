@@ -1,5 +1,6 @@
 import {
   Alert,
+  Button,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -7,7 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParams } from "../navigation/StackNavigator";
@@ -19,6 +20,10 @@ import HeaderDots from "../components/HeaderDots";
 import GoBackButton from "../components/GoBackButton";
 import InputComponent from "../components/InputComponent";
 import ButtonComponent from "../components/ButtonComponent";
+import { findExistingUsername } from "../core/database/find-existing-username.action";
+import { useAuthStore } from "../store/useAuthStore";
+import { updateUserInfo } from "../core/database/update-user-info.action";
+import {insertArrayGames} from "../core/database/insert-array-games.action";
 
 type Props = StackScreenProps<RootStackParams, "info">;
 
@@ -32,8 +37,11 @@ const InfoScreen = ({ navigation }: Props) => {
     name: "",
     username: "",
   });
+  const [existingUser, setExistingUser] = useState<boolean>(false);
 
-  const handleUpdate = () => {
+  const { user } = useAuthStore();
+
+  const handleUpdate = async () => {
     if (
       dataToUpdate.name.trim() === "" &&
       dataToUpdate.username.trim() === ""
@@ -43,7 +51,34 @@ const InfoScreen = ({ navigation }: Props) => {
     }
 
     // TODO: Update user info
+
+    if (!existingUser) {
+      const resp = await updateUserInfo(
+        user?.id!,
+        dataToUpdate.username,
+        dataToUpdate.name,
+      );
+
+      if (resp)
+        Alert.alert("Exito!", "La información se ha actualizado con éxito!");
+    }
   };
+
+  const findUsername = async () => {
+    if (dataToUpdate.username.length > 0) {
+      const resp = await findExistingUsername(dataToUpdate.username);
+
+      if (resp) {
+        setExistingUser(true);
+      } else {
+        setExistingUser(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    findUsername();
+  }, [dataToUpdate.username]);
 
   return (
     <SafeAreaProvider style={{ backgroundColor: Colors.background }}>
@@ -84,11 +119,17 @@ const InfoScreen = ({ navigation }: Props) => {
                 placeholder="Nombre de usuario"
                 inputMode="text"
                 secureTextEntry
+                warning={existingUser}
                 onChangeText={(text) =>
                   setDataToUpdate((prev) => ({ ...prev, username: text }))
                 }
                 value={dataToUpdate.username}
               />
+              {existingUser && (
+                <Text style={styles.error}>
+                  El nombre de usuario ya se encuentra registrado
+                </Text>
+              )}
               <ButtonComponent
                 onPress={handleUpdate}
                 // disabled={loading}
@@ -111,5 +152,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "white",
     marginBottom: 10,
+  },
+  error: {
+    fontSize: 14,
+    color: "red",
+    marginVertical: 4,
   },
 });

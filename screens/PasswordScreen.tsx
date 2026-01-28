@@ -19,6 +19,8 @@ import GoBackButton from "../components/GoBackButton";
 import HeaderDots from "../components/HeaderDots";
 import InputComponent from "../components/InputComponent";
 import ButtonComponent from "../components/ButtonComponent";
+import { useAuthStore } from "../store/useAuthStore";
+import { updatePassword } from "../core/auth/update-password.action";
 
 type Props = StackScreenProps<RootStackParams, "password">;
 
@@ -35,7 +37,9 @@ const PasswordScreen = ({ navigation }: Props) => {
     oldPassword: "",
   });
 
-  const handleUpdate = () => {
+  const { user } = useAuthStore();
+
+  const handleUpdate = async () => {
     if (
       dataToUpdate.oldPassword.trim() === "" ||
       dataToUpdate.newPassword.trim() === "" ||
@@ -45,7 +49,21 @@ const PasswordScreen = ({ navigation }: Props) => {
       return;
     }
 
-    // TODO: action for update passwors
+    if (dataToUpdate.newPassword !== dataToUpdate.confirmNewPassword) {
+      Alert.alert("Error", "Las contraseñas no coinciden");
+      return;
+    }
+
+    try {
+      await updatePassword(
+        user?.email!,
+        dataToUpdate.oldPassword,
+        dataToUpdate.newPassword,
+      );
+      Alert.alert("Éxito!", "La contraseña se ha actualizado con éxito");
+    } catch (error) {
+      Alert.alert("Error", (error as Error).message);
+    }
   };
 
   return (

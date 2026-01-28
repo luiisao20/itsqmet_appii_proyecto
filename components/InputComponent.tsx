@@ -3,11 +3,14 @@ import { Colors } from "../assets/colors";
 
 interface Props extends TextInputProps {
   icon?: React.JSX.Element;
+  warning?: boolean;
 }
 
-const InputComponent = ({ icon, ...rest }: Props) => {
+const InputComponent = ({ icon, warning, ...rest }: Props) => {
   return (
-    <View style={styles.input}>
+    <View
+      style={[styles.input, { borderColor: warning ? "red" : Colors.input }]}
+    >
       {icon}
       <TextInput
         {...rest}
@@ -22,7 +25,6 @@ export default InputComponent;
 
 const styles = StyleSheet.create({
   input: {
-    borderColor: Colors.input,
     borderWidth: 1,
     borderRadius: 12,
     height: 60,

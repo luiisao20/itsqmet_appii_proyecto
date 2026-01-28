@@ -1,21 +1,22 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import { Game } from "../screens/HistoryScreen";
 import { Colors } from "../assets/colors";
 import {
   AntDesign,
   FontAwesome,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { GameHistory } from "../interfaces/interfaces";
+import { getFormattedDate } from "../helpers/getFormattedDate";
 
 interface Props {
-  game: Game;
+  game: GameHistory;
 }
 
 const HistoryComponent = ({ game }: Props) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.subtitle}>{game.date}</Text>
+      <Text style={styles.subtitle}>{getFormattedDate(game.date)}</Text>
       <View
         style={{
           flexDirection: "row",
@@ -25,7 +26,7 @@ const HistoryComponent = ({ game }: Props) => {
         }}
       >
         <View style={{ gap: 6 }}>
-          {game.win && (
+          {game.won && (
             <View
               style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
             >
@@ -43,7 +44,7 @@ const HistoryComponent = ({ game }: Props) => {
               size={20}
               color={Colors.input}
             />
-            <Text style={styles.paragraph}>
+            {/* <Text style={styles.paragraph}>
               {game.lvl === "easy"
                 ? "Fácil"
                 : game.lvl === "medium"
@@ -51,13 +52,13 @@ const HistoryComponent = ({ game }: Props) => {
                 : game.lvl === "hard"
                 ? "Difícil"
                 : "Experto"}
-            </Text>
+            </Text> */}
           </View>
         </View>
         <FontAwesome
-          name={game.win ? "trophy" : "close"}
+          name={game.won ? "trophy" : "close"}
           size={50}
-          color={game.win ? Colors.input : Colors.dotRedLow}
+          color={game.won ? Colors.input : Colors.dotRedLow}
         />
       </View>
     </View>

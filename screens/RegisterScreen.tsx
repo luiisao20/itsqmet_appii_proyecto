@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -27,6 +27,7 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { useAuthStore } from "../store/useAuthStore";
+import { findExistingUsername } from "../core/database/find-existing-username.action";
 
 type Props = StackScreenProps<RootStackParams, "register">;
 
@@ -46,12 +47,15 @@ const RegisterScreen = ({ navigation }: Props) => {
     password: "",
     username: "",
   });
+  const [existingUser, setExistingUser] = useState<boolean>(false);
+
   const { register, loading } = useAuthStore();
 
   const handleRegister = async () => {
     if (
       registerInfo.email.trim() === "" ||
       registerInfo.name.trim() === "" ||
+      registerInfo.username.trim() === "" ||
       registerInfo.password.trim() === ""
     ) {
       Alert.alert(
@@ -66,9 +70,27 @@ const RegisterScreen = ({ navigation }: Props) => {
       return;
     }
 
-    const resp = await register(registerInfo);
-    if (resp) navigation.navigate("tabs");
+    if (!existingUser) {
+      const resp = await register(registerInfo);
+      if (resp) navigation.navigate("tabs");
+    }
   };
+
+  const findUsername = async () => {
+    if (registerInfo.username.length > 0) {
+      const resp = await findExistingUsername(registerInfo.username);
+
+      if (resp) {
+        setExistingUser(true);
+      } else {
+        setExistingUser(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    findUsername();
+  }, [registerInfo.username]);
 
   return (
     <SafeAreaProvider style={styles.container}>
@@ -109,6 +131,7 @@ const RegisterScreen = ({ navigation }: Props) => {
                     icon={
                       <Ionicons name="person" size={24} color={Colors.input} />
                     }
+                    warning={existingUser}
                     placeholder="Nombres completos"
                     inputMode="text"
                     onChangeText={(text) =>
@@ -117,6 +140,11 @@ const RegisterScreen = ({ navigation }: Props) => {
                     value={registerInfo.name}
                     autoCapitalize="words"
                   />
+                  {existingUser && (
+                    <Text style={styles.error}>
+                      El nombre de usuario ya se encuentra registrado
+                    </Text>
+                  )}
                   <InputComponent
                     icon={
                       <Entypo name="email" size={20} color={Colors.input} />
@@ -184,7 +212,7 @@ const RegisterScreen = ({ navigation }: Props) => {
                   />
                   <ButtonComponent
                     onPress={handleRegister}
-                    disabled={loading}
+                    disabled={loading || existingUser}
                     text="Ingresar"
                     icon={
                       <Ionicons
@@ -239,5 +267,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     marginLeft: 20,
     marginTop: 20,
+  },
+  error: {
+    fontSize: 14,
+    color: "red",
+    marginVertical: 4,
   },
 });

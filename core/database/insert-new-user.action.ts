@@ -8,7 +8,11 @@ export const insertNewUser = async (
 ): Promise<boolean | null> => {
   const { error } = await supabase
     .from("users")
-    .insert({ id: userId, username: username, full_name: fullName });
+    .insert({
+      id: userId,
+      username: username.toLowerCase(),
+      full_name: fullName,
+    });
 
   if (error) {
     Alert.alert("Error", `Ha ocurrido un error inesperado: ${error.message}`);
