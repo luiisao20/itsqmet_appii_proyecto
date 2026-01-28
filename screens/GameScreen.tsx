@@ -14,6 +14,9 @@ import { Feather } from "@expo/vector-icons";
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParams } from "../navigation/StackNavigator";
 import { useAuthStore } from "../store/useAuthStore";
+import { insertGameData } from "../core/database/insert-game-data.action";
+import { Attempt } from "../interfaces/interfaces";
+import AttemptItem from "../components/AttemptItem";
 
 type Props = StackScreenProps<RootStackParams, "game">;
 
@@ -26,20 +29,12 @@ const colors = [
   Colors.yellowLight,
 ];
 
-interface Attempt {
-  colors: string[];
-  feedback: {
-    correct: number;
-    wrongPosition: number;
-  };
-}
-
 export default function GameScreen({ navigation }: Props) {
   const [secretCode, setSecretCode] = useState<string[]>([]);
   const [currentAttempt, setCurrentAttempt] = useState<string[]>([]);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [gameOver, setGameOver] = useState(false);
-  const [won, setWon] = useState(false);
+  const [startTime, setStartTime] = useState<number>(Date.now());
 
   const { user } = useAuthStore();
 
@@ -55,7 +50,28 @@ export default function GameScreen({ navigation }: Props) {
       code.push(colors[randomIndex]);
     }
     setSecretCode(code);
-    console.log("Código secreto:", code);
+    setStartTime(Date.now());
+
+    const colorNames = code.map((hex) => {
+      switch (hex) {
+        case Colors.red:
+          return `Rojo (${hex})`;
+        case Colors.blue:
+          return `Azul (${hex})`;
+        case Colors.yellow:
+          return `Amarillo (${hex})`;
+        case Colors.green:
+          return `Verde (${hex})`;
+        case Colors.pink:
+          return `Rosa (${hex})`;
+        case Colors.yellowLight:
+          return `Amarillo Claro (${hex})`;
+        default:
+          return hex;
+      }
+    });
+
+    console.log("Código secreto:", colorNames);
   };
 
   const selectColor = (color: string) => {
@@ -67,7 +83,7 @@ export default function GameScreen({ navigation }: Props) {
   };
 
   //! Validar intento
-  const checkAttempt = () => {
+  const checkAttempt = async () => {
     if (currentAttempt.length !== 4) {
       Alert.alert("Atención", "Debes seleccionar 4 colores");
       return;
@@ -84,17 +100,53 @@ export default function GameScreen({ navigation }: Props) {
 
     //! Ganar
     if (feedback.correct === 4) {
-      setWon(true);
       setGameOver(true);
+      await saveGameData(true, attempts.length + 1);
       Alert.alert("¡Felicidades!", "¡Has descifrado el código!");
     } else if (attempts.length >= 9) {
       //TODO: OJO MAXIMO 10 INTENTOS, CAMBIAR LUEGO PARA OTRAS DIFICULTADES
       setGameOver(true);
+      await saveGameData(false, attempts.length + 1);
       Alert.alert("Juego terminado", "Se acabaron los intentos");
     }
 
     setCurrentAttempt([]);
   };
+
+  //TODO: Guardar datos del juego
+  const saveGameData = async (isWon: boolean, totalTries: number) => {
+    if (!user?.id) return;
+
+    const endTime = Date.now();
+    const timeInSeconds = Math.floor((endTime - startTime) / 1000);
+
+    //! Calcular puntos
+    const basePoints = isWon ? 100 : 0;
+    const triesBonus = isWon ? Math.max(0, (10 - totalTries) * 10) : 0;
+    const timeBonus =
+      isWon && timeInSeconds <= 300 ? Math.max(0, 300 - timeInSeconds) : 0;
+    const totalPoints = basePoints + triesBonus + timeBonus;
+
+    try {
+      await insertGameData(
+        user.id,
+        totalPoints,
+        timeInSeconds,
+        totalTries,
+        isWon,
+      );
+
+      console.log(
+        `Puntos obtenidos: ${totalPoints} (Base: ${basePoints}, Puntos por intentos restantes: ${triesBonus}, Puntos por tiempo restante: ${timeBonus})`,
+      );
+      console.log("Datos del juego guardados exitosamente");
+    } catch (error) {
+      console.error("Error al guardar datos del juego:", error);
+    }
+  };
+
+  //TODO: GRABAR DATOS CON
+  insertGameData;
 
   const calculateFeedback = (attempt: string[], secret: string[]) => {
     let correct = 0;
@@ -103,7 +155,7 @@ export default function GameScreen({ navigation }: Props) {
     const secretCopy = [...secret];
     const attemptCopy = [...attempt];
 
-    //! Correctos en posición correcta
+    //? Correctos en posición correcta
     for (let i = 0; i < 4; i++) {
       if (attemptCopy[i] === secretCopy[i]) {
         correct++;
@@ -112,7 +164,7 @@ export default function GameScreen({ navigation }: Props) {
       }
     }
 
-    //! Correctos en posición incorrecta
+    //? Correctos en posición incorrecta
     for (let i = 0; i < 4; i++) {
       if (attemptCopy[i] !== "CHECKED") {
         const index = secretCopy.indexOf(attemptCopy[i]);
@@ -124,6 +176,15 @@ export default function GameScreen({ navigation }: Props) {
     }
 
     return { correct, wrongPosition };
+  };
+
+  //! Reset
+  const restartGame = () => {
+    setSecretCode([]);
+    setCurrentAttempt([]);
+    setAttempts([]);
+    setGameOver(false);
+    generateSecretCode();
   };
 
   return (
@@ -142,6 +203,10 @@ export default function GameScreen({ navigation }: Props) {
               size={36}
               color={Colors.buttonLight}
             />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={restartGame} style={styles.restart}>
+            <Feather name="refresh-cw" size={32} color={Colors.buttonLight} />
           </TouchableOpacity>
 
           <View
@@ -173,92 +238,12 @@ export default function GameScreen({ navigation }: Props) {
           </View>
 
           {attempts.map((attempt, attemptIndex) => (
-            <View key={attemptIndex} style={styles.inactiveContainer}>
-              <Text
-                style={{
-                  color: Colors.buttonLight,
-                  fontWeight: "600",
-                  fontSize: 16,
-                }}
-              >
-                #{attempts.length - attemptIndex}
-              </Text>
-              <View style={{ flexDirection: "row", gap: 12 }}>
-                {attempt.colors.map((color, index) => (
-                  <Dot
-                    key={index}
-                    size={36}
-                    color={color}
-                    select={false}
-                    shadow={true}
-                  />
-                ))}
-              </View>
-
-              <View>
-                <View style={{ flexDirection: "row", gap: 4, marginBottom: 4 }}>
-                  <Dot
-                    size={10}
-                    color={attempt.feedback.correct >= 1 ? "#fff" : "#868686"}
-                    select={false}
-                    shadow={false}
-                  />
-                  <Dot
-                    size={10}
-                    color={
-                      attempt.feedback.correct >= 2
-                        ? "#fff"
-                        : attempt.feedback.wrongPosition >= 1
-                          ? Colors.red
-                          : "#868686"
-                    }
-                    select={false}
-                    shadow={false}
-                  />
-                </View>
-                <View style={{ flexDirection: "row", gap: 4 }}>
-                  <Dot
-                    size={10}
-                    color={
-                      attempt.feedback.correct >= 3
-                        ? "#fff"
-                        : attempt.feedback.wrongPosition >= 1 &&
-                            attempt.feedback.correct < 2
-                          ? Colors.red
-                          : attempt.feedback.wrongPosition >= 2 &&
-                              attempt.feedback.correct === 2
-                            ? Colors.red
-                            : "#868686"
-                    }
-                    select={false}
-                    shadow={false}
-                  />
-                  <Dot
-                    size={10}
-                    color={
-                      attempt.feedback.correct >= 4
-                        ? "#fff"
-                        : attempt.feedback.wrongPosition >= 2 &&
-                            attempt.feedback.correct < 2
-                          ? Colors.red
-                          : attempt.feedback.wrongPosition >= 3 &&
-                              attempt.feedback.correct === 1
-                            ? Colors.red
-                            : attempt.feedback.wrongPosition >= 1 &&
-                                attempt.feedback.correct === 2
-                              ? Colors.red
-                              : attempt.feedback.wrongPosition +
-                                    attempt.feedback.correct ===
-                                  4
-                                ? Colors.red
-                                : "#868686"
-                    }
-                    select={false}
-                    shadow={false}
-                  />
-                </View>
-              </View>
-            </View>
+            <AttemptItem
+              key={attemptIndex}
+              attempt={attempt}
+              attemptIndex={attemptIndex}
+              attempts={attempts.length}
+            />
           ))}
         </ScrollView>
 
@@ -350,6 +335,11 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginTop: 2,
   },
+  restart: {
+    position: "absolute",
+    right: 20,
+    marginTop: 2,
+  },
   title: {
     fontWeight: "700",
     fontSize: 24,
@@ -410,3 +400,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+//!
+/*
+Puntos por ganar: 100 puntos base
+Puntos por intentos restantes: (10 - totalTries) * 10 ()
+Puntos por tiempo restante: Si el jugador gana en menos de 5 minutos (300 segundos), 
+  se otorgan puntos adicionales calculados como (300 - tiempo empleado en segundos). 
+  Si el tiempo es mayor a 5 minutos, no se otorgan puntos por tiempo restante.
+Total de puntos = puntos por ganar + puntos por intentos restantes + puntos por tiempo restante
+*/
+//!
