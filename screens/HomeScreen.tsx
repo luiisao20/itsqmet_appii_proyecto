@@ -1,5 +1,5 @@
-import { StyleSheet, View, Text } from "react-native";
-import React from "react";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import HeaderDots from "../components/HeaderDots";
@@ -10,6 +10,10 @@ import Footer from "../components/Footer";
 import { RootStackParams } from "../navigation/StackNavigator";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { Colors } from "../assets/colors";
+import { useAudioPlayer } from "expo-audio";
+
+const audioSource = require("../assets/sounds/background-music.mp3");
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParams, "home">,
@@ -17,6 +21,25 @@ type Props = CompositeScreenProps<
 >;
 
 export default function HomeScreen({ navigation }: Props) {
+  const [isPLaying, setsPLaying] = useState<boolean>(true);
+  const player = useAudioPlayer(audioSource);
+
+  function togglePlayMusic() {
+    if (player.playing) {
+      player.pause();
+      setsPLaying(false);
+    } else {
+      player.play();
+      setsPLaying(true);
+    }
+  }
+
+  useEffect(() => {
+    player.loop = true;
+    player.volume = 0.3;
+    player.play();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -53,6 +76,29 @@ export default function HomeScreen({ navigation }: Props) {
                 text="Tablero"
                 type="dark"
               />
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                marginTop: 40,
+              }}
+            >
+              <TouchableOpacity onPress={togglePlayMusic}>
+                {isPLaying ? (
+                  <MaterialIcons
+                    name="music-off"
+                    size={24}
+                    color={Colors.red}
+                  />
+                ) : (
+                  <MaterialIcons
+                    name="music-note"
+                    size={24}
+                    color={Colors.buttonLight}
+                  />
+                )}
+              </TouchableOpacity>
             </View>
           </View>
           <Footer />

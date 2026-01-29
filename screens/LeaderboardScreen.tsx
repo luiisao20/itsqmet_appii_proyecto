@@ -16,13 +16,16 @@ import TopCircles from "../components/TopCircles";
 import LeaderboardItem from "../components/LeaderBoardItem";
 import { GameRank } from "../interfaces/interfaces";
 import { getRanks } from "../core/database/get-ranks.action";
+import { useAuthStore } from "../store/useAuthStore";
 
 type Props = StackScreenProps<RootStackParams, "leaderboard">;
 
 export default function LeaderboardScreen({ navigation }: Props) {
   const [rank, setRank] = useState<GameRank[]>([]);
   const [myRank, setMyRank] = useState<GameRank>();
+  const [myRankIndex, setMyRankIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     getRank();
@@ -31,14 +34,19 @@ export default function LeaderboardScreen({ navigation }: Props) {
   const getRank = async () => {
     try {
       setIsLoading(true);
-      // const dataList = await getRanks();
-      //TODO: Obtener datos de ranking del usuario
-      // const data = await getMyRank();
-      // setRank(dataList);
-      // setMyRank(data);
+      const dataList = await getRanks();
+      setRank(dataList);
 
-      setRank(leaderData);
-      setMyRank(myRankData);
+      if (user?.id) {
+        const userRankIndex = dataList.findIndex(
+          (item) => item.userId === user.id,
+        );
+
+        if (userRankIndex !== -1) {
+          setMyRank(dataList[userRankIndex]);
+          setMyRankIndex(userRankIndex);
+        }
+      }
     } catch (error) {
       console.log(`Error: ${error}`);
     } finally {
@@ -66,9 +74,10 @@ export default function LeaderboardScreen({ navigation }: Props) {
               <Text style={styles.titleContainerGlobal}>Global</Text>
             </View>
           </View>
-          {rank && (
-            <View style={{ flex: 1 }}>
-              <View style={styles.circleContainer}>
+
+          <View style={{ flex: 1 }}>
+            <View style={styles.circleContainer}>
+              {rank && rank.length > 0 && (
                 <View>
                   <TopCircles
                     alignSelf="center"
@@ -81,6 +90,8 @@ export default function LeaderboardScreen({ navigation }: Props) {
                     score={rank[0].totalPoints}
                   />
                 </View>
+              )}
+              {rank && rank.length > 1 && (
                 <TopCircles
                   alignSelf="flex-start"
                   color={Colors.pink}
@@ -88,6 +99,8 @@ export default function LeaderboardScreen({ navigation }: Props) {
                   rank={2}
                   score={rank[1].totalPoints}
                 />
+              )}
+              {rank && rank.length > 2 && (
                 <TopCircles
                   alignSelf="flex-end"
                   color={Colors.green}
@@ -95,14 +108,16 @@ export default function LeaderboardScreen({ navigation }: Props) {
                   rank={3}
                   score={rank[2].totalPoints}
                 />
-              </View>
+              )}
+            </View>
+            {rank && rank.length > 0 && (
               <FlatList
                 style={{
                   marginHorizontal: 40,
                   marginTop: 40,
                   marginBottom: 120,
                 }}
-                data={leaderData.slice(3)}
+                data={rank.slice(3)}
                 renderItem={({ item, index }) => (
                   <LeaderboardItem item={item} index={index + 3} />
                 )}
@@ -110,9 +125,10 @@ export default function LeaderboardScreen({ navigation }: Props) {
                   <RefreshControl onRefresh={getRank} refreshing={isLoading} />
                 }
               />
-            </View>
-          )}
-          {myRank && (
+            )}
+          </View>
+
+          {myRank && myRank.userId && (
             <View
               style={{
                 position: "absolute",
@@ -123,7 +139,7 @@ export default function LeaderboardScreen({ navigation }: Props) {
             >
               <LeaderboardItem
                 item={myRank}
-                index={11} //TODO: Traer el rank real del usuario
+                index={myRankIndex}
                 backgroundColor={Colors.background}
                 shadowColor={true}
               ></LeaderboardItem>
@@ -178,22 +194,3 @@ const styles = StyleSheet.create({
     marginBottom: 80,
   },
 });
-
-const leaderData: GameRank[] = [
-  { userId: "1", username: "Alice", totalPoints: 300 },
-  { userId: "2", username: "Bob", totalPoints: 250 },
-  { userId: "3", username: "Charlie", totalPoints: 200 },
-  { userId: "4", username: "David", totalPoints: 180 },
-  { userId: "5", username: "Eve", totalPoints: 160 },
-  { userId: "6", username: "Frank", totalPoints: 140 },
-  { userId: "7", username: "Grace", totalPoints: 120 },
-  { userId: "8", username: "Heidi", totalPoints: 100 },
-  { userId: "9", username: "Ivan", totalPoints: 90 },
-  { userId: "10", username: "Judy", totalPoints: 80 },
-];
-
-const myRankData: GameRank = {
-  userId: "11",
-  username: "MyUsername",
-  totalPoints: 70,
-};
