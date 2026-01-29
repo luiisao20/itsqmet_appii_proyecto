@@ -1,7 +1,6 @@
 import { User } from "@supabase/supabase-js";
 import { supabase } from "../../supabase/config";
 import { RegisterNewUser } from "../../screens/RegisterScreen";
-import { setToken } from "../storage/secure-storage.adapter";
 import { insertNewUser } from "../database/insert-new-user.action";
 import { Alert } from "react-native";
 
@@ -26,8 +25,6 @@ export const registerAction = async (
   if (!resp) {
     return null;
   }
-
-  await setToken(data.session?.access_token!);
 
   return data.user!;
 };

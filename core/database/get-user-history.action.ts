@@ -9,7 +9,8 @@ export const getUserHistory = async (
   const { data, error } = await supabase
     .from("games")
     .select()
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .order("date", { ascending: false });
 
   if (error) throw new Error(error.message);
 

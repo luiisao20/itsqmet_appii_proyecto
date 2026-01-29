@@ -21,8 +21,8 @@ export default GoBackButton;
 const styles = StyleSheet.create({
   goBack: {
     position: "absolute",
-    marginLeft: 20,
-    marginTop: 20,
+    left: 20,
+    top: 36,
     zIndex: 10
   },
 });

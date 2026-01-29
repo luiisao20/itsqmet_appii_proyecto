@@ -13,6 +13,7 @@ export const getUserData = async (userId: string): Promise<UserApp> => {
   const user: UserApp = {
     fullName: data.full_name,
     username: data.username,
+    photoUrl: data.photo_url ?? undefined,
   };
 
   return user;
