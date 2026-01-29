@@ -10,13 +10,17 @@ import React, { useState, useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../assets/colors";
 import Dot from "../components/Dot";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParams } from "../navigation/StackNavigator";
 import { useAuthStore } from "../store/useAuthStore";
 import { insertGameData } from "../core/database/insert-game-data.action";
 import { Attempt } from "../interfaces/interfaces";
 import AttemptItem from "../components/AttemptItem";
+import { useAudioPlayer } from "expo-audio";
+
+const audioSource = require("../assets/sounds/mechanical-crate-pick-up.wav");
+const winSource = require("../assets/sounds/arcade-bonus-alert.wav");
 
 type Props = StackScreenProps<RootStackParams, "game">;
 
@@ -35,6 +39,8 @@ export default function GameScreen({ navigation }: Props) {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [startTime, setStartTime] = useState<number>(Date.now());
+  const player = useAudioPlayer(audioSource);
+  const audioWin = useAudioPlayer(winSource);
 
   const { user } = useAuthStore();
 
@@ -82,6 +88,10 @@ export default function GameScreen({ navigation }: Props) {
     }
   };
 
+  const clearCurrentAttempt = () => {
+    setCurrentAttempt([]);
+  };
+
   //! Validar intento
   const checkAttempt = async () => {
     if (currentAttempt.length !== 4) {
@@ -98,13 +108,21 @@ export default function GameScreen({ navigation }: Props) {
 
     setAttempts([newAttempt, ...attempts]);
 
+    player.seekTo(0);
+    player.play();
+
     //! Ganar
     if (feedback.correct === 4) {
       setGameOver(true);
       await saveGameData(true, attempts.length + 1);
       Alert.alert("¡Felicidades!", "¡Has descifrado el código!");
+
+      setTimeout(() => {
+        audioWin.seekTo(0);
+        audioWin.play();
+      }, 300);
     } else if (attempts.length >= 9) {
-      //TODO: OJO MAXIMO 10 INTENTOS, CAMBIAR LUEGO PARA OTRAS DIFICULTADES
+      //! OJO MAXIMO 10 INTENTOS, CAMBIAR LUEGO PARA OTRAS DIFICULTADES
       setGameOver(true);
       await saveGameData(false, attempts.length + 1);
       Alert.alert("Juego terminado", "Se acabaron los intentos");
@@ -113,7 +131,6 @@ export default function GameScreen({ navigation }: Props) {
     setCurrentAttempt([]);
   };
 
-  //TODO: Guardar datos del juego
   const saveGameData = async (isWon: boolean, totalTries: number) => {
     if (!user?.id) return;
 
@@ -144,9 +161,6 @@ export default function GameScreen({ navigation }: Props) {
       console.error("Error al guardar datos del juego:", error);
     }
   };
-
-  //TODO: GRABAR DATOS CON
-  insertGameData;
 
   const calculateFeedback = (attempt: string[], secret: string[]) => {
     let correct = 0;
@@ -266,6 +280,13 @@ export default function GameScreen({ navigation }: Props) {
               disabled={gameOver}
             >
               <Feather name="check" size={20} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={clearCurrentAttempt}
+              style={[styles.actionButton, { backgroundColor: Colors.red }]}
+              disabled={gameOver}
+            >
+              <MaterialIcons name="clear" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
