@@ -44,15 +44,16 @@ const HistoryComponent = ({ game }: Props) => {
               size={20}
               color={Colors.input}
             />
-            {/* <Text style={styles.paragraph}>
-              {game.lvl === "easy"
+            <Text style={styles.paragraph}>
+              {game.points} puntos
+              {/* {game.lvl === "easy"
                 ? "Fácil"
                 : game.lvl === "medium"
                 ? "Medio"
                 : game.lvl === "hard"
                 ? "Difícil"
-                : "Experto"}
-            </Text> */}
+                : "Experto"} */}
+            </Text>
           </View>
         </View>
         <FontAwesome
