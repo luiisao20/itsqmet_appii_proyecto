@@ -7,6 +7,7 @@ export interface LeaderboardInterface {
 export interface UserApp {
   username: string;
   fullName: string;
+  photoUrl?: string;
 }
 
 export interface GameHistory {

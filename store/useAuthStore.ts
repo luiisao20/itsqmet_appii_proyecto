@@ -4,8 +4,7 @@ import { RegisterNewUser } from "../screens/RegisterScreen";
 import { loginAction } from "../core/auth/login.action";
 import { registerAction } from "../core/auth/register.action";
 import { checkSession } from "../core/auth/check-session.action";
-import {deleteItem} from "../core/storage/secure-storage.adapter";
-import {supabase} from "../supabase/config";
+import { supabase } from "../supabase/config";
 
 interface AuthState {
   user?: User;
@@ -59,8 +58,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 
   logout: async () => {
-    await deleteItem();
     await supabase.auth.signOut();
     return;
-  }
+  },
 }));

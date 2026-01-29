@@ -24,6 +24,7 @@ function MyTabs() {
         name="home"
         component={HomeScreen}
         options={{
+          title: 'Inicio',
           tabBarIcon: ({ focused }) => (
             <MaterialIcons
               name="home-filled"
@@ -37,6 +38,7 @@ function MyTabs() {
         name="profile"
         component={ProfileScreen}
         options={{
+          title: 'Perfil',
           tabBarIcon: ({ focused }) => (
             <MaterialIcons
               name="person"
