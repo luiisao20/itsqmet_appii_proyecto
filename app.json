@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "mastermind-mobile",
+    "name": "Mastermind Game",
     "slug": "mastermind-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo/mind-mapping.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo/mind-mapping.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,17 +17,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo/mind-mapping.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.garaq.mastermindmobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
     },
-    "plugins": [
-      "expo-audio"
-  ]
+    "extra": {
+      "eas": {
+        "projectId": "6f74db08-8ee6-48b1-a0b3-e39600b5f33a"
+      }
+    }
+  },
+  "plugins": ["expo-audio"]
 }

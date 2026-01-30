@@ -12,7 +12,7 @@ interface Props extends PressableProps {
   icon?: React.JSX.Element;
   notArrow?: boolean;
   text: string;
-  type?: "light" | "dark";
+  type?: "light" | "dark" | "danger";
 }
 
 const ButtonComponent = ({
@@ -29,18 +29,28 @@ const ButtonComponent = ({
         styles.loginButton,
         {
           backgroundColor:
-            type === "light" ? Colors.buttonLight : Colors.buttonDark,
+            type === "danger"
+              ? Colors.red
+              : type === "dark"
+                ? Colors.buttonDark
+                : Colors.buttonLight,
+          justifyContent: !notArrow ? "space-between" : "center",
         },
         pressed && { opacity: 0.75 },
       ]}
     >
-      <View style={{ flexDirection: "row", gap: 8 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 8,
+        }}
+      >
         {icon}
         <Text
           style={{
             fontWeight: "700",
             fontSize: 18,
-            color: type === "dark" ? "white" : "black",
+            color: type === "dark" || type === "danger" ? "white" : "black",
           }}
         >
           {text}
@@ -50,7 +60,7 @@ const ButtonComponent = ({
         <MaterialIcons
           name="chevron-right"
           size={24}
-          color={type === 'light' ? Colors.darkGreen : 'white'}
+          color={type === "light" ? Colors.darkGreen : "white"}
         />
       )}
     </Pressable>
@@ -62,7 +72,6 @@ export default ButtonComponent;
 const styles = StyleSheet.create({
   loginButton: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     marginHorizontal: 40,
     paddingVertical: 16,

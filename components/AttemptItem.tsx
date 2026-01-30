@@ -15,6 +15,29 @@ export default function AttemptItem({
   attemptIndex,
   attempts,
 }: AttemptsListProps) {
+  const getFeedbackIndicators = () => {
+    const indicators: string[] = [];
+
+    // Correctos
+    for (let i = 0; i < attempt.feedback.correct; i++) {
+      indicators.push("#fff");
+    }
+
+    // Posición incorrecta
+    for (let i = 0; i < attempt.feedback.wrongPosition; i++) {
+      indicators.push(Colors.red);
+    }
+
+    // Vacíos
+    while (indicators.length < 4) {
+      indicators.push("#868686");
+    }
+
+    return indicators;
+  };
+
+  const feedbackIndicators = getFeedbackIndicators();
+
   return (
     <View key={attemptIndex} style={styles.inactiveContainer}>
       <Text
@@ -42,19 +65,13 @@ export default function AttemptItem({
         <View style={{ flexDirection: "row", gap: 4, marginBottom: 4 }}>
           <Dot
             size={10}
-            color={attempt.feedback.correct >= 1 ? "#fff" : "#868686"}
+            color={feedbackIndicators[0]}
             select={false}
             shadow={false}
           />
           <Dot
             size={10}
-            color={
-              attempt.feedback.correct >= 2
-                ? "#fff"
-                : attempt.feedback.wrongPosition >= 1
-                  ? Colors.red
-                  : "#868686"
-            }
+            color={feedbackIndicators[1]}
             select={false}
             shadow={false}
           />
@@ -62,40 +79,13 @@ export default function AttemptItem({
         <View style={{ flexDirection: "row", gap: 4 }}>
           <Dot
             size={10}
-            color={
-              attempt.feedback.correct >= 3
-                ? "#fff"
-                : attempt.feedback.wrongPosition >= 1 &&
-                    attempt.feedback.correct < 2
-                  ? Colors.red
-                  : attempt.feedback.wrongPosition >= 2 &&
-                      attempt.feedback.correct === 2
-                    ? Colors.red
-                    : "#868686"
-            }
+            color={feedbackIndicators[2]}
             select={false}
             shadow={false}
           />
           <Dot
             size={10}
-            color={
-              attempt.feedback.correct >= 4
-                ? "#fff"
-                : attempt.feedback.wrongPosition >= 2 &&
-                    attempt.feedback.correct < 2
-                  ? Colors.red
-                  : attempt.feedback.wrongPosition >= 3 &&
-                      attempt.feedback.correct === 1
-                    ? Colors.red
-                    : attempt.feedback.wrongPosition >= 1 &&
-                        attempt.feedback.correct === 2
-                      ? Colors.red
-                      : attempt.feedback.wrongPosition +
-                            attempt.feedback.correct ===
-                          4
-                        ? Colors.red
-                        : "#868686"
-            }
+            color={feedbackIndicators[3]}
             select={false}
             shadow={false}
           />
