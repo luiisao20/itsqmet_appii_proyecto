@@ -38,7 +38,7 @@ export default function ProfileScreen({ navigation }: Props) {
     "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
   );
 
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
   const getUserInfo = async () => {
     const resp = await getUserData(user?.id!);
@@ -106,7 +106,6 @@ export default function ProfileScreen({ navigation }: Props) {
   useEffect(() => {
     getUserInfo();
   }, []);
-
 
   return (
     <SafeAreaProvider>
@@ -183,6 +182,16 @@ export default function ProfileScreen({ navigation }: Props) {
               onPress={() => navigation.navigate("info")}
               icon={<Feather name="edit" size={24} color="black" />}
               text="Editar información"
+            />
+            <ButtonComponent
+              onPress={async () => {
+                await logout();
+                navigation.popToTop();
+              }}
+              // icon={<Feather name="edit" size={24} />}
+              type="danger"
+              text="Cerrar sesión"
+              notArrow={true}
             />
           </View>
         </ScrollView>
