@@ -42,4 +42,6 @@ yarn-error.*
 
 # firebase
 /firebase/config.ts
-/supabase
+
+# environment
+.env

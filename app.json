@@ -22,16 +22,18 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.garaq.mastermindmobile"
+      "package": "com.luiisao20.mastermindmobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "6f74db08-8ee6-48b1-a0b3-e39600b5f33a"
+        "projectId": "38d706d5-436b-4332-bbeb-3d0682aa5ecd"
       }
     }
   },
-  "plugins": ["expo-audio"]
+  "plugins": [
+    "expo-audio"
+  ]
 }
