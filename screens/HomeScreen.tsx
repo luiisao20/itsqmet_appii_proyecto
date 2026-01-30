@@ -36,7 +36,6 @@ export default function HomeScreen({ navigation }: Props) {
 
   useEffect(() => {
     player.loop = true;
-    player.volume = 0.3;
     player.play();
   }, []);
 

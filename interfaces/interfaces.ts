@@ -22,6 +22,7 @@ export interface GameRank {
   userId: string;
   username: string;
   totalPoints: number;
+  photoUrl?: string;
 }
 
 export interface Attempt {

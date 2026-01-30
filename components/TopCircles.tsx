@@ -11,6 +11,7 @@ interface Props {
   user: string;
   rank: number;
   score: number;
+  photoUrl?: string;
 }
 
 const TopCircles = ({
@@ -22,6 +23,7 @@ const TopCircles = ({
   user,
   rank,
   score,
+  photoUrl,
 }: Props) => {
   return (
     <>
@@ -47,7 +49,9 @@ const TopCircles = ({
         >
           <Image
             source={{
-              uri: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+              uri:
+                photoUrl ??
+                "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
             }}
             style={{
               height: height ?? 100,

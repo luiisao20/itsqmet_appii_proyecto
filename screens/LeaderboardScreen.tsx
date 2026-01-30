@@ -88,6 +88,7 @@ export default function LeaderboardScreen({ navigation }: Props) {
                     user={rank[0].username}
                     rank={1}
                     score={rank[0].totalPoints}
+                    photoUrl={rank[0].photoUrl}
                   />
                 </View>
               )}
@@ -98,6 +99,7 @@ export default function LeaderboardScreen({ navigation }: Props) {
                   user={rank[1].username}
                   rank={2}
                   score={rank[1].totalPoints}
+                  photoUrl={rank[1].photoUrl}
                 />
               )}
               {rank && rank.length > 2 && (
@@ -107,6 +109,7 @@ export default function LeaderboardScreen({ navigation }: Props) {
                   user={rank[2].username}
                   rank={3}
                   score={rank[2].totalPoints}
+                  photoUrl={rank[2].photoUrl}
                 />
               )}
             </View>
